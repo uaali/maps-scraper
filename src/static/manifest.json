@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Google Maps Web Scraper",
+  "version": "1.0.0",
+  "description": "A web scraper for extracting data from Google Maps",
+  "author": "Ali Kuria",
+  "action": {
+    "default_title": "Google Maps Web Scraper",
+    "default_popup": "popup.html"
+
+  },
+  "permissions": ["tabs","bookmarks"],
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScript.js"]
+    }
+  ]
+}
