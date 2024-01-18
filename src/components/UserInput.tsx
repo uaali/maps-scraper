@@ -85,7 +85,7 @@ function CascadingDropdowns({ setQuery }) {
   );
 }
 
-const UserInput = () => {
+const UserInput = ({sendMsg}) => {
   const [query, setQuery] = useState("");
   const [inputs, setInputs] = useState(0);
   const [locations, setLocations] = useState([]);
@@ -104,17 +104,17 @@ const UserInput = () => {
     }
   };
 
-  const startScraping = (keywords,locations) => {
-    if(keywords.length === 0 || locations.length === 0){
-        return alert("Please add at least one keyword and location")
+  const startScraping = async (keywords, locations) => {
+    if (keywords.length === 0 || locations.length === 0) {
+      return alert("Please add at least one keyword and location");
     }
-    var port = chrome.runtime.connect({name: "scraper"});
-    port.postMessage({keywords: keywords, locations: locations});
+
+    sendMsg({keywords, locations})
     setKeywords([]);
     setLocations([]);
     setQuery("");
     // setPage("Output")
-  }
+  };
 
   return (
     <div className="container w-full text-center">
@@ -124,8 +124,8 @@ const UserInput = () => {
           <h1 className="text-xl">Locations</h1>
           <div>
             <div>
-              {locations.map((location) => (
-                <p key={location}>{location}</p>
+              {locations.map((location, i) => (
+                <p key={i}>{location}</p>
               ))}
             </div>
             <div>
@@ -145,8 +145,8 @@ const UserInput = () => {
           <h1 className="text-xl">Keywords</h1>
           <div>
             <div>
-              {keywords.map((keyword) => (
-                <p key={keyword}>{keyword}</p>
+              {keywords.map((keyword, i) => (
+                <p key={i}>{keyword}</p>
               ))}
             </div>
             <div>
@@ -168,9 +168,12 @@ const UserInput = () => {
           </div>
         </div>
       </div>
-      <button onClick={()=>startScraping(keywords,locations)} className="absolute bottom-0 left-0 right-0 bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded text-xl">
+      <div
+        onClick={() => startScraping(keywords, locations)}
+        className="absolute bottom-0 left-0 right-0 bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded text-xl"
+      >
         Scrape
-      </button>
+      </div>
     </div>
   );
 };

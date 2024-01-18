@@ -10,11 +10,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "chrome-extension-async": "^3.4.1",
     "country-state-city": "^3.2.1",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-select": "^5.8.0",
-    "ts-loader": "^9.5.1"
+    "ts-loader": "^9.5.1",
+    "webextension-polyfill-ts": "^0.26.0",
+    "xmldom": "^0.6.0"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.257",

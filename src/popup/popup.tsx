@@ -4,17 +4,23 @@ import "../assets/tailwind.css";
 import "../assets/tailwind.css";
 import { UserInput, Login, Output, SignUp, Home } from "../components";
 
-
-
 const App = () => {
   const [page, setPage] = useState("UserInput");
+
+  const sendMessageToBackgroundScript = (msg) => {
+    // Send a message to the content script
+    chrome.runtime.sendMessage({ msg });
+  };
+
   return (
     <div>
       <div>
-        {page === "Home" && <Home setPage ={setPage}/>}
+        {page === "Home" && <Home setPage={setPage} />}
         {page === "SignUp" && <SignUp />}
         {page === "Login" && <Login />}
-        {page === "UserInput" && <UserInput />}
+        {page === "UserInput" && (
+          <UserInput sendMsg={sendMessageToBackgroundScript} />
+        )}
         {page === "Output" && <Output />}
       </div>
     </div>

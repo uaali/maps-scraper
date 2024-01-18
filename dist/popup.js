@@ -104,6 +104,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var country_state_city__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! country-state-city */ "./node_modules/country-state-city/lib/country.js");
 /* harmony import */ var country_state_city__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! country-state-city */ "./node_modules/country-state-city/lib/state.js");
 /* harmony import */ var country_state_city__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! country-state-city */ "./node_modules/country-state-city/lib/city.js");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
 
 
@@ -164,7 +173,7 @@ function CascadingDropdowns({ setQuery }) {
         react__WEBPACK_IMPORTED_MODULE_0___default().createElement(react_select__WEBPACK_IMPORTED_MODULE_4__["default"], { placeholder: "Select State", value: selectedState, options: states, onChange: handleStateChange }),
         react__WEBPACK_IMPORTED_MODULE_0___default().createElement(react_select__WEBPACK_IMPORTED_MODULE_4__["default"], { placeholder: "Select City", value: selectedCity, options: cities, onChange: handleCityChange })));
 }
-const UserInput = () => {
+const UserInput = ({ sendMsg }) => {
     const [query, setQuery] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("");
     const [inputs, setInputs] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(0);
     const [locations, setLocations] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)([]);
@@ -183,24 +192,23 @@ const UserInput = () => {
             setQuery("");
         }
     };
-    const startScraping = (keywords, locations) => {
+    const startScraping = (keywords, locations) => __awaiter(void 0, void 0, void 0, function* () {
         if (keywords.length === 0 || locations.length === 0) {
             return alert("Please add at least one keyword and location");
         }
-        var port = chrome.runtime.connect({ name: "scraper" });
-        port.postMessage({ keywords: keywords, locations: locations });
+        sendMsg({ keywords, locations });
         setKeywords([]);
         setLocations([]);
         setQuery("");
         // setPage("Output")
-    };
+    });
     return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "container w-full text-center" },
         react__WEBPACK_IMPORTED_MODULE_0___default().createElement("h1", { className: "text-3xl" }, "Google Maps Web Scrapper"),
         react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "flex flex-row gap-10 w-full justify-around mt-10" },
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { className: "w-1/2" },
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("h1", { className: "text-xl" }, "Locations"),
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, locations.map((location) => (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", { key: location }, location)))),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, locations.map((location, i) => (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", { key: i }, location)))),
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
                         react__WEBPACK_IMPORTED_MODULE_0___default().createElement(CascadingDropdowns, { setQuery: setQuery })),
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
@@ -208,12 +216,12 @@ const UserInput = () => {
             react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("h1", { className: "text-xl" }, "Keywords"),
                 react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
-                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, keywords.map((keyword) => (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", { key: keyword }, keyword)))),
+                    react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null, keywords.map((keyword, i) => (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("p", { key: i }, keyword)))),
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
                         react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", { className: "border border-gray-400 w-64 rounded px-2 py-1 mt-6", type: "text", placeholder: "Enter Keyword", onChange: (e) => setKeyword(e.target.value) })),
                     react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
                         react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { onClick: () => setKeywords([...keywords, keyword]), className: "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-6" }, "+ Add Keyword"))))),
-        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", { onClick: () => startScraping(keywords, locations), className: "absolute bottom-0 left-0 right-0 bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded text-xl" }, "Scrape")));
+        react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", { onClick: () => startScraping(keywords, locations), className: "absolute bottom-0 left-0 right-0 bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded text-xl" }, "Scrape")));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (UserInput);
 
@@ -267,12 +275,16 @@ __webpack_require__.r(__webpack_exports__);
 
 const App = () => {
     const [page, setPage] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)("UserInput");
+    const sendMessageToBackgroundScript = (msg) => {
+        // Send a message to the content script
+        chrome.runtime.sendMessage({ msg });
+    };
     return (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
         react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
             page === "Home" && react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components__WEBPACK_IMPORTED_MODULE_3__.Home, { setPage: setPage }),
             page === "SignUp" && react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components__WEBPACK_IMPORTED_MODULE_3__.SignUp, null),
             page === "Login" && react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components__WEBPACK_IMPORTED_MODULE_3__.Login, null),
-            page === "UserInput" && react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components__WEBPACK_IMPORTED_MODULE_3__.UserInput, null),
+            page === "UserInput" && (react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components__WEBPACK_IMPORTED_MODULE_3__.UserInput, { sendMsg: sendMessageToBackgroundScript })),
             page === "Output" && react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_components__WEBPACK_IMPORTED_MODULE_3__.Output, null))));
 };
 const popup = (react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", null,
