@@ -39,19 +39,18 @@ chrome.runtime.onInstalled.addListener(function (details) {
 
     const html = await response.text();
 
-    // const $ = cheerio.load(html);
-    // const aTags = $("a");
-    // const parents = [];
-    // aTags.each((i, el) => {
-    //   const href = $(el).attr("href");
-    //   if (!href) {
-    //     return;
-    //   }
-    //   if (href.includes("/maps/place/")) {
-    //     parents.push($(el).parent());
-    //   }
-    // });
-
-    // console.log("parents", parents.length);
+    const $ = cheerio.load(html);
+    const aTags = $("a");
+    const parents = [];
+    aTags.each((i, el) => {
+      const href = $(el).attr("href");
+      if (!href) {
+        return;
+      }
+      if (href.includes("/maps/place/")) {
+        parents.push($(el).parent());
+      }
+    });
+    console.log("parents", parents.length);
   };
 });
