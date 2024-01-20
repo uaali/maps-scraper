@@ -18,7 +18,8 @@
       "128": "128.png"
     }
   },
-  "permissions": ["activeTab", "tabs", "bookmarks"],
+  "permissions": ["activeTab", "tabs", "bookmarks","scripting"],
+  "host_permissions": ["<all_urls>"],
   "options_page": "options.html",
   "background": {
     "service_worker": "background.js",

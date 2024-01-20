@@ -9,7 +9,7 @@
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var cheerio__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! cheerio */ "./node_modules/cheerio/lib/esm/index.js");
+/* harmony import */ var json2csv__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! json2csv */ "./node_modules/json2csv/lib/json2csv.js");
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -19,56 +19,68 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+let queries = [];
+let results = [];
+let currentQueryIndex = 0;
 
-chrome.runtime.onInstalled.addListener(function (details) {
-    console.log("Background script loaded.");
-    const scrapeData = (keywords, locations) => {
-        let queries = [];
-        keywords.forEach((keyword) => {
-            locations.forEach((location) => {
-                queries.push(`${keyword} ${location}`);
-            });
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    const keywords = request.msg.keywords;
+    const locations = request.msg.locations;
+    keywords.forEach((keyword) => {
+        locations.forEach((location) => {
+            queries.push(keyword + " " + location);
         });
-        queries.forEach((query) => {
-            extractData(query);
-        });
-    };
-    const extractData = (query) => __awaiter(this, void 0, void 0, function* () {
-        let companyName;
-        let category;
-        let websiteURL = [];
-        let phoneNumber;
-        let email = [];
-        let latitude;
-        let longitude;
-        let address;
-        let city;
-        let state;
-        let pinCode;
-        let ratingCount;
-        let review;
-        let googleMapLink;
-        let url = `https://www.google.com/maps/search/${query
+    });
+    scrapeNextQuery();
+    const generalTransform = (value) => (value === null ? '""' : value);
+    // Convert JSON to CSV with a general transform
+    const csvData = (0,json2csv__WEBPACK_IMPORTED_MODULE_0__.parse)(results, { transforms: [generalTransform] });
+    // Create a Blob and download link
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+    let href = URL.createObjectURL(blob);
+    console.log("href", href);
+});
+function scrapeNextQuery() {
+    if (currentQueryIndex < queries.length) {
+        const query = queries[currentQueryIndex];
+        scrapeData(query);
+        currentQueryIndex++;
+    }
+}
+function scrapeData(query) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const url = `https://www.google.com/maps/search/${query
             .split(" ")
             .join("+")}`;
-        googleMapLink = url;
-        const response = yield fetch(url);
-        const html = yield response.text();
-        const $ = cheerio__WEBPACK_IMPORTED_MODULE_0__.load(html);
-        const aTags = $("a");
-        const parents = [];
-        aTags.each((i, el) => {
-            const href = $(el).attr("href");
-            if (!href) {
-                return;
-            }
-            if (href.includes("/maps/place/")) {
-                parents.push($(el).parent());
-            }
-        });
-        console.log("parents", parents.length);
+        chrome.tabs.create({ url }, (tab) => __awaiter(this, void 0, void 0, function* () {
+            chrome.runtime.onConnect.addListener(function (port) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    console.assert(port.name === "content");
+                    yield port.onMessage.addListener(function (msg) {
+                        if (msg.msg === "close") {
+                            chrome.tabs.get(tab.id, function (tabInfo) {
+                                if (chrome.runtime.lastError || !tabInfo) {
+                                    // Tab doesn't exist or there was an error
+                                    console.error("Error getting tab info:", chrome.runtime.lastError);
+                                }
+                                else {
+                                    chrome.tabs.remove(tab.id, function () {
+                                        results.push(msg);
+                                        scrapeNextQuery();
+                                    });
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+            yield chrome.scripting.executeScript({
+                target: { tabId: tab.id, allFrames: true },
+                files: ["contentScript.js"],
+            });
+        }));
     });
-});
+}
 
 
 /***/ })
@@ -93,7 +105,7 @@ chrome.runtime.onInstalled.addListener(function (details) {
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
-/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
 /******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
@@ -135,16 +147,16 @@ chrome.runtime.onInstalled.addListener(function (details) {
 /******/ 		};
 /******/ 	})();
 /******/ 	
-/******/ 	/* webpack/runtime/define property getters */
+/******/ 	/* webpack/runtime/global */
 /******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__webpack_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
+/******/ 		__webpack_require__.g = (function() {
+/******/ 			if (typeof globalThis === 'object') return globalThis;
+/******/ 			try {
+/******/ 				return this || new Function('return this')();
+/******/ 			} catch (e) {
+/******/ 				if (typeof window === 'object') return window;
 /******/ 			}
-/******/ 		};
+/******/ 		})();
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
@@ -221,7 +233,7 @@ chrome.runtime.onInstalled.addListener(function (details) {
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["vendors-node_modules_cheerio_lib_esm_index_js"], () => (__webpack_require__("./src/background/background.ts")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["vendors-node_modules_json2csv_lib_json2csv_js"], () => (__webpack_require__("./src/background/background.ts")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

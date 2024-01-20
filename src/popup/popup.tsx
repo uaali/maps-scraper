@@ -8,8 +8,11 @@ const App = () => {
   const [page, setPage] = useState("UserInput");
 
   const sendMessageToBackgroundScript = (msg) => {
-    // Send a message to the content script
-    chrome.runtime.sendMessage({ msg });
+    (async () => {
+      const response = await chrome.runtime.sendMessage({ msg });
+      // do something with response here, not outside the function
+      console.log(response);
+    })();
   };
 
   return (
